@@ -98,6 +98,7 @@ def generate_launch_description():
         period=3.0,
         actions=[start_async_slam_toolbox_node]
     ))
+    # rviz_launch.py
     ld.add_action(TimerAction(
         period=5.0,
         actions=[rviz_node]

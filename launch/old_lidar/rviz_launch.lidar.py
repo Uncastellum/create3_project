@@ -9,12 +9,12 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    # Gets the directory of the package and stores it as 'lidar_pkg'
-    lidar_pkg = get_package_share_directory('create3_project')
+    # Gets the directory of the package and stores it as 'pkg_dir'
+    pkg_dir = get_package_share_directory('create3_project')
 
     # Generate the path to the rviz configuration file
     rviz2_config = PathJoinSubstitution(
-        [lidar_pkg, 'rviz', 'lidar_slam.rviz'])
+        [pkg_dir, 'config', 'lidar_slam.rviz'])
 
     # Evaluate at launch the value of the launch configuration 'namespace'
     namespace = LaunchConfiguration('namespace')

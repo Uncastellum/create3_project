@@ -26,11 +26,11 @@ def generate_launch_description():
         default_value='false',
         description='Use simulation/Gazebo clock')
 
-    # Gets the directory of the package and stores it as 'lidar_pkg'
-    lidar_pkg = get_package_share_directory('create3_project')
+    # Gets the directory of the package and stores it as 'pkg_dir'
+    pkg_dir = get_package_share_directory('create3_project')
     # Generate the path to the rviz configuration file
     rviz2_config = PathJoinSubstitution(
-        [lidar_pkg, 'rviz', 'lidar_slam.rviz'])
+        [pkg_dir, 'config', 'lidar_slam.rviz'])
 
     # Declares an action that will launch a node when executed by the launch description.
     # This node is responsible for providing a static transform from the robot's base_footprint
@@ -101,7 +101,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(namespace_argument)
-    ld.add_action(use_sim_time)
+    ld.add_action(use_sim_time_argument)
     # sensors_launch.py
     ld.add_action(static_transform_node)
     ld.add_action(TimerAction(
@@ -113,7 +113,7 @@ def generate_launch_description():
         period=4.0,
         actions=[start_async_slam_toolbox_node]
     ))
-    # slam_toolbox_launch.py
+    # rviz_launch.py
     ld.add_action(TimerAction(
         period=6.0,
         actions=[rviz_node]
