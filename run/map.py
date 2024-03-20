@@ -22,6 +22,16 @@ class Map(object):
         self.coor_or = ['up', 'right', 'down', 'left']
         self.coor = (2,2,'up')
 
+    def __str__(self):
+        map_str = ""
+        for row in self.map:
+            #map_str += " ".join(str(cell) if cell is not None else "░" for cell in row) + "\n"
+            map_str += " ".join("·" if cell is False else
+                                "x" if cell is True else
+                                "░" if cell is None else
+                                str(cell) for cell in row) + "\n"
+        return map_str + str(self.coor)
+
     def _add_row_up(self):
         self.map.insert(0, [None] * len(self.map[0]))
         self.coor = (self.coor[0], self.coor[1] + 1, self.coor[2])
@@ -178,42 +188,31 @@ class Map(object):
         else: # coor_or == 'left':
             self.map[coor_y + 2][coor_x - 1] = l or bool(self.map[coor_y + 2][coor_x - 1])
 
-    def print(self):
-        map_str = ""
-        for row in self.map:
-            #map_str += " ".join(str(cell) if cell is not None else "░" for cell in row) + "\n"
-            map_str += " ".join("·" if cell is False else
-                                "x" if cell is True else
-                                "░" if cell is None else
-                                str(cell) for cell in row) + "\n"
-        print(map_str, end= '')
-        print(str(self.coor))
-
     def test(self):
-        self.print()
+        print(str(self))
         print('move 4 + r')
         self.move()
         self.move()
         self.move()
         self.move()
         self.rotate()
-        self.print()
+        print(str(self))
         print('move 3 + r')
         self.move()
         self.move()
         self.move()
         self.rotate()
-        self.print()
+        print(str(self))
         print('move 4 + r')
         self.move()
         self.move()
         self.move()
         self.move()
         self.rotate()
-        self.print()
+        print(str(self))
         print('move 3 + r')
         self.move()
         self.move()
         self.move()
         self.rotate()
-        self.print()
+        print(str(self))

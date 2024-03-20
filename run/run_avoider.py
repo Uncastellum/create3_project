@@ -4,6 +4,9 @@
 # run_avoider.py
 #
 
+import sys
+sys.dont_write_bytecode = True
+
 import rclpy
 from rclpy.node import Node
 #from sensor_msgs.msg import LaserScan, Range
@@ -21,8 +24,12 @@ ir_sensors = {
 }
 
 class ObstacleAvoider(Node):
-    def __init__(self):
+    def __init__(self, debug = False):
         super().__init__('obstacle_avoider')
+
+        if debug:
+            self.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+            self.get_logger().debug("Using DEBUG logger.")
 
         qos_profile = rclpy.qos.QoSProfile(
             depth = 1,  # Set an appropriate depth value
@@ -51,8 +58,8 @@ class ObstacleAvoider(Node):
         for sensor in msg.readings:
             debug[ir_sensors[sensor.header.frame_id]] = sensor.value
 
-        self.get_logger().info(debug)
-        self.get_logger().info([threshold < x for x in debug])
+        self.get_logger().debug(str(debug))
+        self.get_logger().info(str([threshold < x for x in debug]))
 
         #obstacle_detected = any( threshold < sensor.value for sensor in msg.readings )
         # obstacle_detected = any(
@@ -74,12 +81,14 @@ class ObstacleAvoider(Node):
         # Publish the twist message
         self.publisher.publish(self.twist_msg)
 
-def main(args=None):
+def main(args = []):
     rclpy.init(args=args)
-    avoider = ObstacleAvoider()
+    avoider = ObstacleAvoider(
+        debug = '--debug' in args
+    )
     rclpy.spin(avoider)
     avoider.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

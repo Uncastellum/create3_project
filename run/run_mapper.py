@@ -29,8 +29,12 @@ ir_sensors = {
 
 
 class Create3Mapper(Node):
-    def __init__(self, control = False):
+    def __init__(self, control = False, debug = False):
         super().__init__('create3mapper')
+
+        if debug:
+            self.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+            self.get_logger().debug("Using DEBUG logger.")
 
         self.map = Map()
         self.random_counter = 0
@@ -51,7 +55,6 @@ class Create3Mapper(Node):
         # self.drive_client = self.create_client(DriveDistance.Impl.SendGoalService, '/drive_distance')
         self.rotate_client = ActionClient(self, RotateAngle, '/rotate_angle')
         self.drive_client = ActionClient(self, DriveDistance, '/drive_distance')
-        self.get_logger().debug("ieee")
 
         while not self.rotate_client.wait_for_server(timeout_sec=1.0):
             self.get_logger().info('RotateAngle action server not available, waiting again...')
@@ -60,8 +63,13 @@ class Create3Mapper(Node):
 
         self.rotate_goal = RotateAngle.Goal()
         self.drive_goal = DriveDistance.Goal()
-        self.get_logger().info('Ready!')
-        self.map.print()
+        self.get_logger().info('Ready! (manually controlled=' + str(control) + ')')
+        self._printmap()
+
+    def _printmap(self):
+        self.get_logger().info('Updated map:')
+        for p in str(self.map).split('\n'):
+            self.get_logger().info('\t\t' + p)
 
     def _updateStatus(self, res):
         self.moving = False
@@ -112,7 +120,6 @@ class Create3Mapper(Node):
         return [th_l, th_m or (th_l and th_r), th_r]
 
     def _callback(self, msg):
-        # print('Entro', self.moving)
         if not (self.rotate_client.server_is_ready()
                 and self.drive_client.server_is_ready()) or self.moving:
             time.sleep(1)
@@ -123,9 +130,9 @@ class Create3Mapper(Node):
             readings[ir_sensors[sensor.header.frame_id]] = sensor.value
 
         obstacles = self._calculate_thresholds(readings)
-        print(readings)
-        print(obstacles)
-        print(self.last_mov)
+        self.get_logger().debug(str(readings))
+        self.get_logger().debug(str(obstacles))
+        self.get_logger().debug(str(self.last_mov))
 
         # Check front and update
         old_obstacles = self.map.getinfo()
@@ -152,13 +159,13 @@ class Create3Mapper(Node):
             self.random_counter += 1
             if bool(self.random_counter & 1) and self.random_counter > 10 and bool(random.getrandbits(1)):
                 self.random_counter = 0
-                print('RANDOM ROTATION!')
+                self.get_logger().info('ROLL DICE! Random rotation to avoid dead')
                 self._rotate90(clockwise = bool(random.getrandbits(1)))
             else:
                 self._moveFWcell()
 
-        self.map.print()
-        print('----------------------------------------------')
+        self._printmap()
+        self.get_logger().info('----------------------------------------------')
 
     def _callback_control(self, msg):
         if not (self.rotate_client.server_is_ready()
@@ -180,23 +187,23 @@ class Create3Mapper(Node):
             self._rotate90(clockwise = False)
         elif user_input == 'w':
             if any(self.map.getinfo()) or any(obstacles):
-                print("nope.")
+                self.get_logger().debug("Wait to rotate.")
                 return
             self._moveFWcell()
         elif user_input == 'e':
             self._rotate90(clockwise = True)
         else:
             return
-        self.map.print()
-        print('----------------------------------------------')
+        self._printmap()
+        self.get_logger().info('----------------------------------------------')
 
 
-def main(args=None):
+def main(args = []):
     rclpy.init(args=args)
-    if '--control' in args:
-        mapper = Create3Mapper(control = True)
-    else:
-        mapper = Create3Mapper()
+    mapper = Create3Mapper(
+        control = '--control' in args,
+        debug = '--debug' in args
+    )
     rclpy.spin(mapper)
     mapper.destroy_node()
     rclpy.shutdown()

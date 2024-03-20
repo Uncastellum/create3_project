@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(rclpy REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -55,13 +56,10 @@ install(TARGETS ${libraries_names}
   RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include/
-  DESTINATION include
-)
-
+install(DIRECTORY include  DESTINATION include)
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
-install(DIRECTORY run DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY run DESTINATION lib/${PROJECT_NAME})
 
 ament_export_include_directories(include)
 ament_export_libraries(${libraries_names})
