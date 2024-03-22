@@ -146,7 +146,7 @@ class Map(object):
             where.reverse()
             self.map[coor_y + 2][coor_x-1:coor_x+2] = where
             if coor_y + 2 == len(self.map) - 1:
-                self._add_row_up()
+                self._add_row_down()
         elif coor_or == 'right':
             self.map[coor_y - 1][coor_x + 2] = where[0]
             self.map[coor_y][coor_x + 2] = where[1]

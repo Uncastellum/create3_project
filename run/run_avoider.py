@@ -9,7 +9,7 @@ sys.dont_write_bytecode = True
 
 import time
 import rclpy
-import random
+import random as rd
 from rclpy.node import Node
 #from sensor_msgs.msg import LaserScan, Range
 from irobot_create_msgs.msg import IrIntensity, IrIntensityVector
@@ -31,7 +31,7 @@ class ObstacleAvoider(Node):
 
         self.random = random
         self.random_counter = 0
-        self.get_logger().info('Launch Avoider(random=' + str(random) + ')')
+        self.get_logger().info('Launch Avoider(random=' + str(self.random) + ')')
         self.log = True
 
         if debug:
@@ -95,10 +95,10 @@ class ObstacleAvoider(Node):
             self.twist_msg.angular.z = 0.0
 
             # Random rotation
-            if random and self.random_counter > 200 and random.randint(1, 10) == 5:
+            if self.random and self.random_counter > 200 and rd.randint(1, 10) == 5:
                 self.get_logger().info('Random small rotation!')
                 self.twist_msg.linear.x = 0.0
-                self.twist_msg.angular.z = [-1.5, 1.5][random.getrandbits(1)]
+                self.twist_msg.angular.z = [-1.5, 1.5][rd.getrandbits(1)]
                 self.random_counter = 0
                 self.publisher.publish(self.twist_msg)
                 time.sleep(0.5)
